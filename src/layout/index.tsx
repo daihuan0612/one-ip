@@ -3,12 +3,10 @@ import { Link, Outlet, useLocation, useNavigate } from "react-router-dom";
 import { BuildInfo } from "@/components/build-info";
 import { LanguageSelect } from "@/components/language-select";
 import { AppUpdateChecker } from "@/components/providers/app-update-checker";
-import { ShareSite } from "@/components/share-site";
 import { ThemeToggleButton } from "@/components/theme/theme-toggle-button";
 import { Pending } from "@/components/toolkit";
 import { AnimatedSegmentedTabs } from "@/components/ui/animated-segmented-tabs";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
-import { UnderlineHover } from "@/components/underline-hover";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useTheme } from "@/hooks/use-theme";
 import { t } from "@/i18n";
@@ -88,7 +86,6 @@ export function AppLayout() {
             <img src="/icon.svg" width="24" height="24" alt="" />
           </Link>
           <div className="flex items-center gap-1">
-            <ShareSite />
             <LanguageSelect />
             <ThemeToggleButton className="size-8 rounded-full text-muted-foreground" />
           </div>
@@ -124,7 +121,6 @@ export function AppLayout() {
                 <ScrollBar orientation="horizontal" />
               </ScrollArea>
               <div className="desktop-preferences flex items-center gap-1">
-                <ShareSite />
                 <LanguageSelect />
                 <ThemeToggleButton className="size-9 shrink-0 rounded-lg text-muted-foreground" />
               </div>
@@ -147,45 +143,6 @@ export function AppLayout() {
             </main>
           </Tabs.Content>
         </AnimatedSegmentedTabs>
-        <footer className="app-footer">
-          © {new Date().getFullYear()} IP ·{" "}
-          <UnderlineHover asChild>
-            <a
-              href="https://huzhihui.com/blog/one-ip-guide"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              {t("使用文档")}
-            </a>
-          </UnderlineHover>{" "}
-          ·{" "}
-          <UnderlineHover asChild>
-            <Link to="/docs/api">API</Link>
-          </UnderlineHover>{" "}
-          ·{" "}
-          <UnderlineHover asChild>
-            <Link to="/terms">{t("使用条款")}</Link>
-          </UnderlineHover>{" "}
-          ·{" "}
-          <UnderlineHover asChild>
-            <Link to="/privacy">{t("隐私政策")}</Link>
-          </UnderlineHover>{" "}
-          ·{" "}
-          <UnderlineHover asChild>
-            <a
-              href="https://github.com/zhihui-hu/one-ip"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-1 align-middle"
-            >
-              GitHub
-            </a>
-          </UnderlineHover>{" "}
-          ·{" "}
-          <UnderlineHover asChild>
-            <a href="mailto:ip@huzhihui.com">{t("联系作者")}</a>
-          </UnderlineHover>
-        </footer>
       </div>
       <aside aria-label={t("站点通知")} className="update-notices">
         <AppUpdateChecker />
