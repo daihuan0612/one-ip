@@ -17,6 +17,7 @@ import { companyTypeColors } from "@/lib/ip-badge-colors";
 import { ipScoreColor } from "@/lib/ip-score";
 import { BrowserSummary } from "@/views/browser/summary";
 import { lookupIp } from "@/views/ip/api";
+import { PerfectScoreEffects } from "@/views/ip/perfect-score-effects";
 import { testConnectivity, type ProbeResult } from "@/views/link/api";
 import { useQueries, useQueryClient } from "@tanstack/react-query";
 import {
@@ -245,6 +246,7 @@ export function HomePage() {
               key={index}
               className={`home-primary-card relative${score === 100 ? " ip-dossier-perfect" : ""}`}
             >
+              {score === 100 && <PerfectScoreEffects />}
               {data && (
                 <Link
                   to={`/network/ip/${encodeURIComponent(data.ip)}`}
@@ -389,9 +391,9 @@ export function HomePage() {
                 icon: () => <SiteLogo website="https://chatgpt.com" />,
               },
               {
-                path: "/network/exits",
-                label: t("分流出口"),
-                description: t("核对不同网站的实际出口"),
+                path: "/network/connectivity",
+                label: t("网站连通与出口"),
+                description: t("核对网站连通性、响应延迟和实际出口"),
                 icon: Network,
               },
               {
