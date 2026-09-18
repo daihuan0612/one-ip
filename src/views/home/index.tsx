@@ -4,7 +4,12 @@ import { ConnectivityTile, homeTargets } from "@/components/connectivity";
 import { CountryFlag } from "@/components/country-flag";
 import { NumberTicker } from "@/components/number-ticker";
 import { SiteLogo } from "@/components/site-logo";
-import { ActionButton, IpText, Pending } from "@/components/toolkit";
+import {
+  ActionButton,
+  IpText,
+  Pending,
+  PrivacyToggle,
+} from "@/components/toolkit";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { UnderlineHover } from "@/components/underline-hover";
@@ -169,7 +174,10 @@ export function HomePage() {
   return (
     <div className="home-page">
       <div className="mb-3 flex items-center justify-between gap-3">
-        <h1 className="text-sm font-semibold">{t("网络概览")}</h1>
+        <div className="flex items-center gap-1">
+          <h1 className="text-sm font-semibold">{t("网络概览")}</h1>
+          <PrivacyToggle iconOnly />
+        </div>
         <ActionButton
           size="sm"
           variant="outline"

@@ -426,16 +426,20 @@ body {
   position: relative;
   overflow: hidden;
   border-radius: 8px;
-  will-change: height;
 }
-.split-table-fade {
+.split-table-toggle {
+  padding: 6px 12px;
+  text-align: center;
+}
+.split-table-toggle button {
+  scroll-margin-bottom: 16px;
+}
+[data-collapsed="true"] > .split-table-toggle {
   position: absolute;
   right: 0;
   bottom: 0;
   left: 0;
   z-index: 2;
-  height: 84px;
-  pointer-events: none;
   background: linear-gradient(
     to bottom,
     color-mix(in srgb, var(--card) 0%, transparent),
@@ -932,11 +936,46 @@ body {
     flex: auto;
     min-width: 0;
   }
-  .split-table th:first-child {
-    width: auto;
+  .split-table table {
+    min-width: 0;
   }
-  .split-table th:nth-child(3) {
-    width: 145px;
+  .split-table thead {
+    display: none;
+  }
+  .split-table tbody {
+    display: block;
+  }
+  .split-table tbody tr {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: 6px 12px;
+    padding: 12px;
+  }
+  .split-table-card .split-table tbody td:nth-child(n) {
+    min-width: 0;
+    padding: 0;
+    border: 0;
+    white-space: normal;
+  }
+  .split-table td:first-child,
+  .split-table td:nth-child(4) {
+    grid-column: 1 / -1;
+  }
+  .split-table td:nth-child(3) {
+    text-align: right;
+  }
+  .split-table td:nth-child(4) {
+    color: var(--muted-foreground);
+  }
+  .split-table-toggle button {
+    scroll-margin-bottom: 88px;
+  }
+  .split-table .site-cell {
+    flex-wrap: wrap;
+    white-space: normal;
+  }
+  .split-table-card .split-table tbody tr + tr {
+    border-top: 1px solid color-mix(in srgb, var(--border) 58%, transparent);
   }
   .data-table th,
   .data-table td {
@@ -1018,12 +1057,6 @@ body {
   }
   .data-table table {
     font-size: 0.78rem;
-  }
-  .split-table th:nth-child(3) {
-    width: 128px;
-  }
-  .split-table th:nth-child(2) {
-    width: 25px;
   }
   .site-cell {
     gap: 5px;
@@ -3830,6 +3863,9 @@ body {
     padding-right: 12px;
   }
   .ip-scenario-progress .ping-dots {
+    display: flex;
+  }
+  .ip-scenario-progress .ip-scenario-count {
     display: none;
   }
   .ip-scenario-progress .ip-scenario-partial {
@@ -3842,6 +3878,9 @@ body {
   }
   .ip-scenario-table .ip-scenario-stars {
     gap: 1px;
+  }
+  .ip-scenario-table .ip-scenario-stars > span:last-child {
+    display: none;
   }
   .ip-scenario-table th:nth-child(2) {
     width: 23%;

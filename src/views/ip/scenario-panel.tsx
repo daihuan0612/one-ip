@@ -445,7 +445,7 @@ const ScenarioSummaryRow = memo(function ScenarioSummaryRow({
               />
             ))}
           </div>
-          <span className="text-[10px] text-muted-foreground">
+          <span className="ip-scenario-count text-[10px] text-muted-foreground">
             {rated}/{group.targets.length}
           </span>
           <span
@@ -462,7 +462,7 @@ const ScenarioSummaryRow = memo(function ScenarioSummaryRow({
       <TableCell>
         <div className="ip-scenario-rating">
           {average !== null ? (
-            <ScenarioStars stars={average} showValue={false} />
+            <ScenarioStars stars={average} />
           ) : (
             <Badge variant="secondary">
               {busy ? <Pending>{t("检测中…")}</Pending> : t("证据不足")}

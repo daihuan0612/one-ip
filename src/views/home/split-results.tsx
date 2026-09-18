@@ -12,7 +12,6 @@ import { UnderlineHover } from "@/components/underline-hover";
 import { t } from "@/i18n";
 import type { Geo } from "@/lib/types";
 import { useQueries } from "@tanstack/react-query";
-import { gsap } from "gsap";
 import { ChevronDown, ChevronUp } from "lucide-react";
 import { getGeo, inspectSite, type Site } from "./api";
 import { matchesSiteCategory } from "./category-status";
@@ -56,96 +55,35 @@ function SiteEgressTable({
   const viewportRef = useRef<HTMLDivElement>(null);
   const tableRef = useRef<HTMLTableElement>(null);
   const bodyRef = useRef<HTMLTableSectionElement>(null);
-  const rowKey = rows.map((row) => row.name).join("|");
-  const fadeRef = useRef<HTMLDivElement>(null);
+  const toggleRef = useRef<HTMLButtonElement>(null);
+  const restoreToggle = useRef(false);
   const canToggle = rows.length > 5;
-  useLayoutEffect(() => {
-    const body = bodyRef.current;
-    if (!body) return;
-    const tableRows = Array.from(body.rows);
-    const reduced = window.matchMedia(
-      "(prefers-reduced-motion: reduce)",
-    ).matches;
-    gsap.killTweensOf(tableRows);
-    gsap.set(tableRows, { filter: "none" });
-    if (reduced) {
-      gsap.set(tableRows, { opacity: 1, y: 0 });
-      return;
-    }
-    const tween = gsap.fromTo(
-      tableRows,
-      { opacity: 0, y: 6 },
-      {
-        opacity: 1,
-        y: 0,
-        duration: 0.22,
-        stagger: 0.015,
-        ease: "power2.out",
-        clearProps: "opacity,transform",
-      },
-    );
-    return () => {
-      tween.kill();
-    };
-  }, [rowKey]);
+  const collapsed = canToggle && !expanded;
+  const visibleRows = collapsed ? rows.slice(0, 6) : rows;
   useLayoutEffect(() => {
     const viewport = viewportRef.current;
     const table = tableRef.current;
     const body = bodyRef.current;
-    const fade = fadeRef.current;
     if (!viewport || !table || !body) return;
-    const tableRows = Array.from(body.rows);
-    const reduced = window.matchMedia(
-      "(prefers-reduced-motion: reduce)",
-    ).matches;
-    const fullHeight = table.getBoundingClientRect().height;
-    const headerHeight = table.tHead?.getBoundingClientRect().height ?? 0;
-    const rowHeight = tableRows[0]?.getBoundingClientRect().height ?? 48;
-    const collapsedHeight = Math.min(
-      fullHeight,
-      headerHeight + rowHeight * 5.75,
-    );
-    const collapsed = canToggle && !expanded;
-    const targetHeight = collapsed ? collapsedHeight : fullHeight;
-    const blurredRows = tableRows.slice(5);
-    gsap.killTweensOf(viewport);
-    if (fade) gsap.killTweensOf(fade);
-    if (reduced) {
-      gsap.set(viewport, { height: collapsed ? targetHeight : "auto" });
-      gsap.set(blurredRows, { filter: "none", opacity: 1 });
-      if (fade) gsap.set(fade, { autoAlpha: 0 });
-      return;
-    }
-    const timeline = gsap.timeline();
-    timeline.to(
-      viewport,
-      {
-        height: targetHeight,
-        duration: 0.42,
-        ease: "power2.inOut",
-        onComplete: () => {
-          if (!collapsed) gsap.set(viewport, { clearProps: "height" });
-        },
-      },
-      0,
-    );
-    timeline.to(
-      blurredRows,
-      {
-        filter: collapsed ? "blur(2.5px)" : "blur(0px)",
-        opacity: collapsed ? 0.62 : 1,
-        duration: 0.28,
-        stagger: 0.012,
-        ease: "power2.out",
-      },
-      0.08,
-    );
-    if (fade)
-      timeline.to(fade, { autoAlpha: collapsed ? 1 : 0, duration: 0.28 }, 0.1);
-    return () => {
-      timeline.kill();
+    const resize = () => {
+      const preview = body.rows[5];
+      viewport.style.height =
+        collapsed && preview
+          ? `${preview.getBoundingClientRect().top - table.getBoundingClientRect().top + 56}px`
+          : "";
     };
-  }, [canToggle, expanded, rowKey]);
+    resize();
+    if (restoreToggle.current) {
+      restoreToggle.current = false;
+      toggleRef.current?.scrollIntoView({
+        block: "end",
+        behavior: "instant",
+      });
+    }
+    const observer = new ResizeObserver(resize);
+    observer.observe(table);
+    return () => observer.disconnect();
+  }, [collapsed, rows.length]);
   return (
     <Card className="split-table-card mb-3 gap-0 rounded-lg py-0">
       <CardHeader className="split-table-header">
@@ -175,28 +113,10 @@ function SiteEgressTable({
                 {t("清除筛选")}
               </Button>
             )}
-            {canToggle && (
-              <Button
-                type="button"
-                size="sm"
-                variant="outline"
-                className="h-7 gap-1 px-2 text-xs"
-                aria-expanded={expanded}
-                aria-controls={tableId}
-                onClick={() => setExpanded((value) => !value)}
-              >
-                {expanded ? (
-                  <ChevronUp aria-hidden="true" />
-                ) : (
-                  <ChevronDown aria-hidden="true" />
-                )}
-                {expanded ? t("收起全部") : t("展开全部")}
-              </Button>
-            )}
           </div>
         </div>
       </CardHeader>
-      <CardContent className="p-0">
+      <CardContent className="relative p-0" data-collapsed={collapsed}>
         <div
           ref={viewportRef}
           className="split-table-viewport"
@@ -213,7 +133,7 @@ function SiteEgressTable({
                 </tr>
               </thead>
               <tbody ref={bodyRef}>
-                {rows.map((row) => {
+                {visibleRows.map((row, index) => {
                   const location = row.geo
                     ? [
                         row.geo.country,
@@ -238,7 +158,7 @@ function SiteEgressTable({
                         ? t("网站可访问")
                         : t("等待检测");
                   return (
-                    <tr key={row.name}>
+                    <tr key={row.name} inert={collapsed && index >= 5}>
                       <td>
                         <button
                           type="button"
@@ -307,8 +227,31 @@ function SiteEgressTable({
               </tbody>
             </table>
           </div>
-          <div ref={fadeRef} className="split-table-fade" aria-hidden="true" />
         </div>
+        {canToggle && (
+          <div className="split-table-toggle">
+            <Button
+              ref={toggleRef}
+              type="button"
+              size="sm"
+              variant="ghost"
+              className="min-h-11 w-full gap-1"
+              aria-expanded={expanded}
+              aria-controls={tableId}
+              onClick={() => {
+                restoreToggle.current = expanded;
+                setExpanded((value) => !value);
+              }}
+            >
+              {expanded ? (
+                <ChevronUp aria-hidden="true" />
+              ) : (
+                <ChevronDown aria-hidden="true" />
+              )}
+              {expanded ? t("收起全部") : t("展开全部")}
+            </Button>
+          </div>
+        )}
       </CardContent>
     </Card>
   );
